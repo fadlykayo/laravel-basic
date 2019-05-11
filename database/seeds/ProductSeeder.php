@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use App\Models\Product;
 
 class ProductSeeder extends Seeder
 {
@@ -11,6 +12,24 @@ class ProductSeeder extends Seeder
      */
     public function run()
     {
-        //
+        $records = [
+            [
+                'name' => 'Product Pertama',
+                'price' => '5000'
+            ],
+            [
+                'name' => 'Product Kedua',
+                'price' => '3500'
+            ],
+        ];
+
+        $product = new Product;
+
+        foreach ($records as $record) {
+            $random = strtoupper(str_random(5));
+            $record['sku'] = "SKU-{$random}";
+            // $record['sku'] = 'SKU-'.strtoupper(str_random(5));
+            $product->create($record);
+        }
     }
 }

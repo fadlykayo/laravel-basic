@@ -20,9 +20,9 @@ class CreateProductsTable extends Migration
             $table->string('name', 100);
             $table->integer('stock')->default(0);
             $table->string('price', 20)->default('0');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
-            
+
             $table->timestamps();
             $table->softDeletes();
         });

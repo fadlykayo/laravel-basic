@@ -26,18 +26,32 @@ Route::get('/', function () {
 
 Route::namespace('Web')
 ->group(function () {
-    Route::name('products.')
+    Route::name('product.')
     ->prefix('products')
     ->group(function () {
         Route::get('/', 'ProductController@index')->name('index');
+        Route::post('/', 'ProductController@store')->name('store');
         Route::get('create/', 'ProductController@create')->name('create');
         Route::get('{id}/', 'ProductController@show')->name('show');
     });
 
     // Route::resource('comments', 'CommentController');
-    
+
     Route::resources([
         'articles' => 'ArticleController',
         'comments' => 'CommentController',
     ]);
 });
+
+// Notes:
+// index    GET      /
+//
+// create   GET     /create
+// store    POST    /
+//
+// edit     GET     /{id}/edit
+// update   PUT     /{id}
+//
+// delete   DELETE  /{id}
+//
+// show     GET     /{id}
