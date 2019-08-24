@@ -11,36 +11,38 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get("/", function () {
+    return view("welcome");
 });
 
 // Notes:
 // prefix untuk route url
 // name untuk nama di view
-// compact('id') sama dengan ['id' => $id]
-// versi lengkap nya Route::get('product/', 'Web\ProductController@index')->name('products.index');
+// compact("id") sama dengan ["id" => $id]
+// versi lengkap nya Route::get("product/", "Web\ProductController@index")->name("products.index");
 
 // Kalo mau automatisasi:
 // php artisan make:controller --resource Web/ArticleController
+// php -S localhost:9000 -t public
 
-Route::namespace('Web')
+Route::namespace("Web") //karena kita ada di dalam folder Web di folder Controllers
 ->group(function () {
-    Route::name('product.')
-    ->prefix('products')
+    Route::name("product.")
+    ->prefix("products")
     ->group(function () {
-        Route::get('/', 'ProductController@index')->name('index');
-        Route::post('/', 'ProductController@store')->name('store');
-        Route::get('create/', 'ProductController@create')->name('create');
-        Route::get('{id}/', 'ProductController@show')->name('show');
+        Route::get("/", "ProductController@index")->name("index"); // Web\ProductController diwakili oleh namespace; @index itu function index
+        Route::post("/", "ProductController@store")->name("store");
+        Route::put("{id}/", "ProductController@update")->name("update");
+        Route::get("create/", "ProductController@create")->name("create");
+        Route::get("{id}/edit/", "ProductController@edit")->name("edit");
+        Route::get("{id}/", "ProductController@show")->name("show");
     });
 
-    // Route::resource('comments', 'CommentController');
-
-    Route::resources([
-        'articles' => 'ArticleController',
-        'comments' => 'CommentController',
-    ]);
+    // Route::resource("comments", "CommentController");
+    // Route::resources([
+    //     "articles" => "ArticleController",
+    //     "comments" => "CommentController",
+    // ]);
 });
 
 // Notes:

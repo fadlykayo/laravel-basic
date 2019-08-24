@@ -9,14 +9,14 @@ class Product extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'products';
+    protected $table = 'products'; // untuk make sure supaya lebih aman namanya products
 
     protected $casts = [
-        'price' => 'integer',
+        'price' => 'integer', // make sure tipe data nya sebagai integer
         'is_active' => 'boolean'
     ];
 
-    protected $fillable = [
+    protected $fillable = [ // lawan nya $guarded
         'sku',
         'name',
         'stock',
