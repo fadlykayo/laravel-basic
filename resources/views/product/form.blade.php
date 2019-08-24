@@ -51,7 +51,9 @@
                             {{ old("description", $data["description"] ?? "") }}
                         </textarea>
                     </div>
+
                     <button class="btn btn-success" type="submit">{{$buttonTitle}}</button>
+                    
                 </form>
             </div>
         </div>

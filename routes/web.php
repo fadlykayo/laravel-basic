@@ -33,6 +33,7 @@ Route::namespace("Web") //karena kita ada di dalam folder Web di folder Controll
         Route::get("/", "ProductController@index")->name("index"); // Web\ProductController diwakili oleh namespace; @index itu function index
         Route::post("/", "ProductController@store")->name("store");
         Route::put("{id}/", "ProductController@update")->name("update");
+        Route::delete("{id}/", "ProductController@destroy")->name("destroy");
         Route::get("create/", "ProductController@create")->name("create");
         Route::get("{id}/edit/", "ProductController@edit")->name("edit");
         Route::get("{id}/", "ProductController@show")->name("show");

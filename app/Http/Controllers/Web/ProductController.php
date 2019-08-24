@@ -16,11 +16,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        // dd(
-        //     (new Product)->all()->toArray()
-        // )
-
-        $data = [];
+        $data = (new Product)->all()->toArray();
 
         return view("product.index", compact("data"));
     }
@@ -30,89 +26,60 @@ class ProductController extends Controller
         return view("product.create");
     }
 
-    public function show($id)
+    public function store(Request $request)
     {
-        return view("product.show", compact("id"));
-    }
-
-    public function edit($id)
-    {
-        $data = (new Product)->where("id", "=", $id)->first();
-
-        return view("product.edit", compact("id", "data"));
+        return $this->save($request);
     }
 
     public function update(Request $request, string $id)
     {
-        // get form data
-        $data = $request->all();
+        return $this->save($request, $id);
+    }
 
-        // $data["office"] = "Rebelworks";
+    public function edit($id)
+    {
+        $data = $this->getData($id);
 
-        // validate form data
-        $rules = [
-            "sku" => "required|min:7|unique:products,sku,null,id,deleted_at,NULL", // soft delete - cek dokumentasi
-            "name" => "required|min:7",
-            "stock" => "required|numeric|min:0",
-            "price" => "required|numeric|min:0",
-            "description" => "nullable",
-        ];
+        return view("product.edit", compact("id", "data"));
+    }
 
-        $messages = [
-            "name.required" => "name is required",
-            "name.min" => "7 characters min",
-        ];
+    public function show($id)
+    {
+        $data = $this->getData($id);
 
-        $validator = Validator::make($data, $rules, $messages);
+        return view("product.show", compact("data", "id"));
+    }
 
-        if ($validator->fails()) {
-            return Redirect::back()
-            ->withErrors($validator) // untuk mengeluarkan error di halaman view
-            ->withInput(); // mengembalikan data2 yg sebelumnya ke form input
-        }
+    public function destroy(string $id)
+    {
+        $data = $this->getData($id);
 
-        // clean up form data
-        unset($data["_token"]); // menghapus form input bernama _token (csrf)
-        unset($data["_method"]);
-
-        // save form data
-        $product = (new Product)->where("id", "=", $id)->first();
-
-        DB::beginTransaction(); // untuk memulai transaction ke database
-        try {
-            foreach ($data as $column => $value) {
-                $product->{$column} = $value;
-            }
-            // sama kayak:
-            // $product->sku = $data["sku"];
-            // $product->name = $data["name"];
-
-            $product->save();
-        } catch (Exception $e) {
-            DB::rollback();
-
-            return Redirect::back()
-                ->withErrors(["db" => $e->getMessage()])
-                ->withInput();
-        }
-        DB::commit(); // save ke DB
-
-        // cara lain:
-        // $product = (new Product)->create($data);
+        $data->delete();
 
         return Redirect::route("product.index");
     }
 
-    public function store(Request $request)
+    public function getData(string $id)
+    {
+        $data = (new Product)->where("id", "=", $id)->first();
+
+        if (is_null($data)) {
+            abort(404);
+        }
+
+        return $data;
+    }
+
+    private function save(Request $request, string $id = null)
     {
         // get form data
-        $data = $request->all();
+        $inputData = $request->all();
 
         // $data["office"] = "Rebelworks";
 
         // validate form data
         $rules = [
-            "sku" => "required|min:7|unique:products,sku,null,id,deleted_at,NULL", // soft delete - cek dokumentasi
+            "sku" => "required|min:7|unique:products,sku,$id,id,deleted_at,NULL", // soft delete - cek dokumentasi
             "name" => "required|min:7",
             "stock" => "required|numeric|min:0",
             "price" => "required|numeric|min:0",
@@ -124,7 +91,7 @@ class ProductController extends Controller
             "name.min" => "7 characters min",
         ];
 
-        $validator = Validator::make($data, $rules, $messages);
+        $validator = Validator::make($inputData, $rules, $messages);
 
         if ($validator->fails()) {
             return Redirect::back()
@@ -133,21 +100,26 @@ class ProductController extends Controller
         }
 
         // clean up form data
-        unset($data["_token"]); // menghapus form input bernama _token (csrf)
+        unset($inputData["_token"]); // menghapus form input bernama _token (csrf)
+        unset($inputData["_method"]);
 
         // save form data
-        $product = (new Product);
+        $data = (new Product);
+
+        if (!is_null($id)) {
+            $data = $data->where("id", "=", $id)->first();
+        }
 
         DB::beginTransaction(); // untuk memulai transaction ke database
         try {
-            foreach ($data as $column => $value) {
-                $product->{$column} = $value;
+            foreach ($inputData as $column => $value) {
+                $data->{$column} = $value;
             }
             // sama kayak:
-            // $product->sku = $data["sku"];
-            // $product->name = $data["name"];
+            // $data->sku = $data["sku"];
+            // $data->name = $data["name"];
 
-            $product->save();
+            $data->save();
         } catch (Exception $e) {
             DB::rollback();
 
@@ -158,7 +130,7 @@ class ProductController extends Controller
         DB::commit(); // save ke DB
 
         // cara lain:
-        // $product = (new Product)->create($data);
+        // $data = (new Product)->create($data);
 
         return Redirect::route("product.index");
     }

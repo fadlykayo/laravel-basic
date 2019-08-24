@@ -8,26 +8,15 @@
         This is product list page
         <br/>
         <br/>
-        <a href="{{ route('product.create') }}">create product</a>
-        <br/>
-        <br/>
-        <a href="{{ route('product.show', 1) }}">detail product 1</a>
-        <br/>
-        <a href="{{ route('product.show', 2) }}">detail product 2</a>
-        <br/>
-        <a href="{{ route('product.show', 3) }}">detail product 3</a>
-        <br/>
-        <a href="{{ route('product.show', 4) }}">detail product 4</a>
-        <br/>
-        <a href="{{ route('product.show', 5) }}">detail product 5</a>
-        <ul>
-            @foreach ($data as $key => $value)
-                @if ($key === 'age')
-                    @continue
-                @endif
 
-                <li>{{ $loop->iteration }}) {{ $key }} = {{ $value }}</li>
-            @endforeach
-        </ul>
+        @foreach ($data as $item)
+            Detail product {{$item["id"]}}
+            <a href="{{ route('product.edit', $item["id"]) }}">Edit</a>
+            <a href="{{ route('product.show', $item["id"]) }}">Show</a>
+            <br/>
+        @endforeach
+
+        <br/>
+        <a href="{{ route('product.create') }}">Create product</a>
     </body>
 </html>
