@@ -18,57 +18,61 @@ class ProductController extends Controller
     {
         $data = (new Product)->all()->toArray();
 
+        // api/products?page=1&search=asd&sort=-name&category=car,bike&status=ACTIVE
+
         return response()->json([
             "status" => "SUCCESS",
             "code" => "000",
             "data" => ["products" => $data] // dikelompokan dalam products
-            "meta" => [
-                "page" => [
-                    "current" => 1,
-                    "total" => 3
-                ],
-                "list" => [
-                    "current" => 15,
-                    "total" => 40
-                ],
-                "search" => [
-                    "searchables" => [
-                        "sku",
-                        "name"
-                    ],
-                    "active" => ""
-                ],
-                "sort" => [
-                    "searchables" => [
-                        "name",
-                        "created_at"
-                    ],
-                    "active" => "-name" // - DESC
-                ],
-                "filters" => [
-                    "filterables" => [
-                        "category" => [
-                            "car",
-                            "bike"
-                        ],
-                        "owner" => [
-                            "user1",
-                            "user2"
-                        ],
-                        "status" => [
-                            "ACTIVE",
-                            "INACTIVE"
-                        ]
-                    ],
-                    "category" => [
-                        "car",
-                        "bike"
-                    ],
-                    "status" => [
-                        "ACTIVE"
-                    ]
-                ],
-            ]
+            // "meta" => [
+            //     "page" => [
+            //         "current" => 1,
+            //         "total" => 3
+            //     ],
+            //     "list" => [
+            //         "current" => 15,
+            //         "total" => 40
+            //     ],
+            //     "search" => [
+            //         "searchables" => [
+            //             "sku",
+            //             "name"
+            //         ],
+            //         "active" => ""
+            //     ],
+            //     "sort" => [
+            //         "searchables" => [
+            //             "name",
+            //             "created_at"
+            //         ],
+            //         "active" => "-name" // - DESC
+            //     ],
+            //     "filters" => [
+            //         "filterables" => [
+            //             "category" => [
+            //                 "car",
+            //                 "bike"
+            //             ],
+            //             "owner" => [
+            //                 "user1",
+            //                 "user2"
+            //             ],
+            //             "status" => [
+            //                 "ACTIVE",
+            //                 "INACTIVE"
+            //             ]
+            //         ],
+            //         "active" => [
+            //             "category" => [
+            //                 "car",
+            //                 "bike"
+            //             ],
+            //             "status" => [
+            //                 "ACTIVE"
+            //             ]
+            //         ]
+            //     ],
+            // ]
         ]);
     }
 
