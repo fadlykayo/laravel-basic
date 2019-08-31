@@ -34,9 +34,9 @@ Route::namespace("Web") //karena kita ada di dalam folder Web di folder Controll
         Route::post("/", "ProductController@store")->name("store");
         Route::put("{id}/", "ProductController@update")->name("update");
         Route::delete("{id}/", "ProductController@destroy")->name("destroy");
-        Route::get("create/", "ProductController@create")->name("create");
         Route::get("{id}/edit/", "ProductController@edit")->name("edit");
-        Route::get("{id}/", "ProductController@show")->name("show");
+        Route::get("{id}/", "ProductController@show")->name("show"); // harus dibawah nya id/edit
+        Route::get("create/", "ProductController@create")->name("create");
     });
 
     // Route::resource("comments", "CommentController");
@@ -48,13 +48,9 @@ Route::namespace("Web") //karena kita ada di dalam folder Web di folder Controll
 
 // Notes:
 // index    GET      /
-//
 // create   GET     /create
 // store    POST    /
-//
 // edit     GET     /{id}/edit
 // update   PUT     /{id}
-//
 // delete   DELETE  /{id}
-//
 // show     GET     /{id}
