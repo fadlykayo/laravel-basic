@@ -18,91 +18,42 @@ class ProductController extends Controller
     {
         $data = (new Product)->all()->toArray();
 
-        // api/products?page=1&search=asd&sort=-name&category=car,bike&status=ACTIVE
-
-        return response()->json([
-            "status" => "SUCCESS",
-            "code" => "000",
-            "data" => ["products" => $data] // dikelompokan dalam products
-            // "meta" => [
-            //     "page" => [
-            //         "current" => 1,
-            //         "total" => 3
-            //     ],
-            //     "list" => [
-            //         "current" => 15,
-            //         "total" => 40
-            //     ],
-            //     "search" => [
-            //         "searchables" => [
-            //             "sku",
-            //             "name"
-            //         ],
-            //         "active" => ""
-            //     ],
-            //     "sort" => [
-            //         "searchables" => [
-            //             "name",
-            //             "created_at"
-            //         ],
-            //         "active" => "-name" // - DESC
-            //     ],
-            //     "filters" => [
-            //         "filterables" => [
-            //             "category" => [
-            //                 "car",
-            //                 "bike"
-            //             ],
-            //             "owner" => [
-            //                 "user1",
-            //                 "user2"
-            //             ],
-            //             "status" => [
-            //                 "ACTIVE",
-            //                 "INACTIVE"
-            //             ]
-            //         ],
-            //         "active" => [
-            //             "category" => [
-            //                 "car",
-            //                 "bike"
-            //             ],
-            //             "status" => [
-            //                 "ACTIVE"
-            //             ]
-            //         ]
-            //     ],
-            // ]
-        ]);
-    }
-
-    public function create()
-    {
-        return view("product.create");
-    }
-
-    public function store(Request $request)
-    {
-        return $this->save($request);
-    }
-
-    public function update(Request $request, string $id)
-    {
-        return $this->save($request, $id);
-    }
-
-    public function edit($id)
-    {
-        $data = $this->getData($id);
-
-        return view("product.edit", compact("id", "data"));
+        return $this->constructSuccessResponse(["products" => $data]); // dikelompokan dalam products
     }
 
     public function show($id)
     {
         $data = $this->getData($id);
 
-        return view("product.show", compact("data", "id"));
+        return $this->constructSuccessResponse(["product" => $data]);
+    }
+
+    public function store(Request $request)
+    {
+        $data = $this->saveData($request);
+
+        if (isset($data["error"])) {
+            return $this->constructErrorResponse($data["error"]);
+        }
+
+        return $this->constructSuccessResponse([
+            "created_id" => $data->id,
+            "product" => $data
+        ]);
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $data = $this->saveData($request, $id);
+
+        if (isset($data["error"])) {
+            return $this->constructErrorResponse($data["error"]);
+        }
+
+        return $this->constructSuccessResponse([
+            "updated_id" => $id,
+            "product" => $data
+        ]);
     }
 
     public function destroy(string $id)
@@ -111,7 +62,9 @@ class ProductController extends Controller
 
         $data->delete();
 
-        return Redirect::route("product.index");
+        return $this->constructSuccessResponse([
+            "deleted_id" => $id,
+        ]);
     }
 
     public function getData(string $id)
@@ -125,12 +78,31 @@ class ProductController extends Controller
         return $data;
     }
 
-    private function save(Request $request, string $id = null)
+    private function constructSuccessResponse($data)
+    {
+        // api/products?page=1&search=asd&sort=-name&category=car,bike&status=ACTIVE
+
+        return response()->json([
+            "status" => "SUCCESS",
+            "code" => "000",
+            "data" => $data,
+        ]);
+    }
+
+    private function constructErrorResponse($error)
+    {
+
+        return response()->json([
+            "status" => "ERROR",
+            "code" => "119",
+            "message" => implode(" | ", $error)
+        ]);
+    }
+
+    private function saveData(Request $request, string $id = null)
     {
         // get form data
         $inputData = $request->all();
-
-        // $data["office"] = "Rebelworks";
 
         // validate form data
         $rules = [
@@ -142,16 +114,15 @@ class ProductController extends Controller
         ];
 
         $messages = [
-            "name.required" => "name is required",
-            "name.min" => "7 characters min",
+            "name.required" => "name is required.",
+            "name.min" => "7 characters min.",
         ];
 
         $validator = Validator::make($inputData, $rules, $messages);
 
         if ($validator->fails()) {
-            return Redirect::back()
-            ->withErrors($validator) // untuk mengeluarkan error di halaman view
-            ->withInput(); // mengembalikan data2 yg sebelumnya ke form input
+            // dd($validator->errors()->all());
+            return ["error" => $validator->errors()->all()]; // implode = join
         }
 
         // clean up form data
@@ -170,40 +141,65 @@ class ProductController extends Controller
             foreach ($inputData as $column => $value) {
                 $data->{$column} = $value;
             }
-            // sama kayak:
-            // $data->sku = $data["sku"];
-            // $data->name = $data["name"];
 
             $data->save();
         } catch (Exception $e) {
             DB::rollback();
 
-            return Redirect::back()
-                ->withErrors(["db" => $e->getMessage()])
-                ->withInput();
+            return ["error" => $e->getMessage()];
         }
         DB::commit(); // save ke DB
 
-        // cara lain:
-        // $data = (new Product)->create($data);
-
-        return Redirect::route("product.index");
+        return $data;
     }
 }
 
-// var_dump("test me")
-// print_r("test me")
-
-// dd($request->input("name"));
-// dd($request->all());
-// $data["name"] = $request->input("name");
-// php artisan make:migration create-products-table --create=products
-// php artisan migrate
-// php artisan migrate:rollback
-// php artisan migrate:refresh --step 1
-// php artisan migrate --pretend
-// php artisan make:seeder ProductSeeder
-// php artisan make:model Product
-// php artisan db:seed
-// php artisan db:seed --class="ProductSeeder"
-// php artisan migrate:refresh --seed
+// "meta" => [
+//     "page" => [
+//         "current" => 1,
+//         "total" => 3
+//     ],
+//     "list" => [
+//         "current" => 15,
+//         "total" => 40
+//     ],
+//     "search" => [
+//         "searchables" => [
+//             "sku",
+//             "name"
+//         ],
+//         "active" => ""
+//     ],
+//     "sort" => [
+//         "searchables" => [
+//             "name",
+//             "created_at"
+//         ],
+//         "active" => "-name" // - DESC
+//     ],
+//     "filters" => [
+//         "filterables" => [
+//             "category" => [
+//                 "car",
+//                 "bike"
+//             ],
+//             "owner" => [
+//                 "user1",
+//                 "user2"
+//             ],
+//             "status" => [
+//                 "ACTIVE",
+//                 "INACTIVE"
+//             ]
+//         ],
+//         "active" => [
+//             "category" => [
+//                 "car",
+//                 "bike"
+//             ],
+//             "status" => [
+//                 "ACTIVE"
+//             ]
+//         ]
+//     ],
+// ]
